@@ -4,22 +4,17 @@
 #include <inttypes.h>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <pthread.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <sys/select.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #define BUFLEN 256
-#define TID_NUM 65536
-
-struct {
-    pthread_mutex_t st_mutex[TID_NUM];
-} GLOBAL;
 
 int buff_work(int sockClient) {
     char buf[BUFLEN + 1];
@@ -33,7 +28,7 @@ int buff_work(int sockClient) {
     else if (msgLength == 0)
         return 1;
 
-    printf("TCP_Server data (thread %zu):\n", pthread_self());
+    printf("TCP_Server data:\n");
     printf("\t- Client socket: %d\n", sockClient);
     printf("\t- Message length: %zd\n", msgLength);
     printf("\t- Message: %s\n\n", buf);
@@ -41,20 +36,13 @@ int buff_work(int sockClient) {
     return 0;
 }
 
-int handler(int sockClient) {
-    pthread_mutex_lock(&GLOBAL.st_mutex[sockClient]);
-    while (!buff_work(sockClient));
-    close(sockClient);
-    pthread_mutex_unlock(&GLOBAL.st_mutex[sockClient]);
-    pthread_exit(NULL);
-}
-
 int main() {
     int sockMain, sockClient;
     socklen_t length;
     struct sockaddr_in servAddr;
-    pthread_t th;
-    pthread_attr_t ta;
+    fd_set rfds;
+    fd_set afds;
+    int fd, nfds;
 
     if ((sockMain = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("TCP_Server: Couldn't open TCP socket.\n");
@@ -82,21 +70,31 @@ int main() {
         exit(1);
     }
 
-    pthread_attr_init(&ta);
-    pthread_attr_setdetachstate(&ta, PTHREAD_CREATE_DETACHED);
-    for (unsigned i = 0; i < TID_NUM; i++)
-        pthread_mutex_init(&GLOBAL.st_mutex[i], 0);
+    nfds = getdtablesize();
+    FD_ZERO(&afds);
+    FD_SET(sockMain, &afds);
 
     printf("TCP_Server: Port %d.\n", ntohs(servAddr.sin_port));
     while (1) {
-        if ((sockClient = accept(sockMain, NULL, NULL)) < 0) {
-            perror("TCP_Server: Faulty client socket.\n");
-            exit(1);
+        memcpy(&rfds, &afds, sizeof(rfds));
+        if (select(nfds, &rfds, NULL, NULL, NULL) < 0) {
+            perror("TCP_Server: Couldn't select a socket.\n");
         }
-
-        if (pthread_create(&th, &ta, (void *(*)(void *))handler, (void *)sockClient) < 0) {
-            perror("TCP_Server: Couldn't thread.");
-            exit(1);
+        if (FD_ISSET(sockMain, &rfds)) {
+            if ((sockClient = accept(sockMain, NULL, NULL)) < 0) {
+                perror("TCP_Server: Faulty client socket.\n");
+                exit(1);
+            }
+            FD_SET(sockClient, &afds);
+        }
+        
+        for (fd = 0; fd < nfds; fd++) {
+            if (fd != sockMain && FD_ISSET(fd, &rfds)) {
+                if (buff_work(fd)) {
+                    close(fd);
+                    FD_CLR(fd, &afds);
+                }
+            }
         }
     }
 }
