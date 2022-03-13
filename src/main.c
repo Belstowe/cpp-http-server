@@ -16,6 +16,19 @@
 
 #endif
 
+#ifdef _WIN32
+
+typedef int socklen_t;
+typedef SOCKADDR_IN sockaddr_in;
+typedef SOCKET socket_t;
+
+#else
+
+typedef struct sockaddr_in sockaddr_in;
+typedef int socket_t;
+
+#endif
+
 #define BUFLEN 256
 
 int buff_work(int sockClient) {
@@ -39,9 +52,9 @@ int buff_work(int sockClient) {
 }
 
 int main() {
-    int sockMain, sockClient;
+    socket_t sockMain, sockClient;
     socklen_t length;
-    struct sockaddr_in servAddr;
+    sockaddr_in servAddr;
     fd_set rfds;
     fd_set afds;
     int fd, nfds;
