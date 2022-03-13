@@ -21,6 +21,7 @@
 typedef int socklen_t;
 typedef SOCKADDR_IN sockaddr_in;
 typedef SOCKET socket_t;
+typedef int ssize_t;
 
 #else
 
