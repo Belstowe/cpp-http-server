@@ -26,6 +26,8 @@ typedef int ssize_t;
 typedef struct sockaddr_in sockaddr_in;
 typedef int socket_t;
 
+#define SD_BOTH 0
+
 #endif
 
 #ifdef _WIN32
