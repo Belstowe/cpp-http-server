@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
 #include <sys/select.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -20,7 +19,7 @@ int buff_work(int sockClient) {
     char buf[BUFLEN + 1];
     ssize_t msgLength;
 
-    bzero(buf, BUFLEN);
+    memset(buf, 0, BUFLEN);
     if ((msgLength = recv(sockClient, buf, BUFLEN, 0)) < 0) {
         perror("TCP_Server: Couldn't receive a message.\n");
         return -1;
@@ -48,7 +47,7 @@ int main() {
         perror("TCP_Server: Couldn't open TCP socket.\n");
         exit(1);
     }
-    bzero( (char *) &servAddr, sizeof(servAddr));
+    memset(&servAddr, 0, sizeof(servAddr));
 
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
