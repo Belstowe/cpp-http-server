@@ -1,15 +1,9 @@
-#include <arpa/inet.h>
-#include <bits/pthreadtypes.h>
-#include <errno.h>
 #include <inttypes.h>
-#include <netdb.h>
 #include <netinet/in.h>
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
