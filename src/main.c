@@ -3,36 +3,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef _WIN32
-
-#include <WinSock2.h>
-
-#else
-
-#include <netinet/in.h>
-#include <sys/select.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
-#endif
-
-#ifdef _WIN32
-
-typedef int socklen_t;
-typedef SOCKADDR_IN sockaddr_in;
-typedef SOCKET socket_t;
-typedef int ssize_t;
-
-#else
-
-typedef struct sockaddr_in sockaddr_in;
-typedef int socket_t;
-
-#endif
+#include "CrossMacros.h"
 
 #define BUFLEN 256
 
-int buff_work(int sockClient) {
+int buff_work(socket_t sockClient) {
     char buf[BUFLEN + 1];
     ssize_t msgLength;
 
@@ -58,9 +33,19 @@ int main() {
     sockaddr_in servAddr;
     fd_set rfds;
     fd_set afds;
-    int fd, nfds;
+    socket_t fd, nfds;
 
-    if ((sockMain = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    #ifdef _WIN32
+    struct WSAData w_data;
+
+    if (WSAStartup(MAKEWORD(2, 2), &w_data) != 0) {
+        perror("TCP_Server: Couldn't startup Windows Sockets 2.\n");
+        exit(1);
+    }
+    #endif
+
+    sockMain = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockMain == WIN(INVALID_SOCKET) NIX(-1)) {
         perror("TCP_Server: Couldn't open TCP socket.\n");
         exit(1);
     }
