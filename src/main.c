@@ -1,26 +1,17 @@
-#include <arpa/inet.h>
-#include <bits/pthreadtypes.h>
-#include <errno.h>
 #include <inttypes.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <strings.h>
-#include <sys/select.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
+
+#include "CrossMacros.h"
 
 #define BUFLEN 256
 
-int buff_work(int sockClient) {
+int buff_work(socket_t sockClient) {
     char buf[BUFLEN + 1];
     ssize_t msgLength;
 
-    bzero(buf, BUFLEN);
+    memset(buf, 0, BUFLEN);
     if ((msgLength = recv(sockClient, buf, BUFLEN, 0)) < 0) {
         perror("TCP_Server: Couldn't receive a message.\n");
         return -1;
@@ -37,18 +28,28 @@ int buff_work(int sockClient) {
 }
 
 int main() {
-    int sockMain, sockClient;
+    socket_t sockMain, sockClient;
     socklen_t length;
-    struct sockaddr_in servAddr;
+    sockaddr_in servAddr;
     fd_set rfds;
     fd_set afds;
-    int fd, nfds;
+    socket_t fd, nfds;
 
-    if ((sockMain = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    #ifdef _WIN32
+    struct WSAData w_data;
+
+    if (WSAStartup(MAKEWORD(2, 2), &w_data) != 0) {
+        perror("TCP_Server: Couldn't startup Windows Sockets 2.\n");
+        exit(1);
+    }
+    #endif
+
+    sockMain = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if (sockMain == WIN(INVALID_SOCKET) NIX(-1)) {
         perror("TCP_Server: Couldn't open TCP socket.\n");
         exit(1);
     }
-    bzero( (char *) &servAddr, sizeof(servAddr));
+    memset(&servAddr, 0, sizeof(servAddr));
 
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.s_addr = htonl(INADDR_ANY);
