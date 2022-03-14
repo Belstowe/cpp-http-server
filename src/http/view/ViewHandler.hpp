@@ -3,8 +3,10 @@
 #include "FileView.hpp"
 #include "View.hpp"
 
-#include <string>
 #include <fstream>
+#include <functional>
+#include <memory>
+#include <string>
 
 namespace http
 {
@@ -20,7 +22,7 @@ class ViewHandler {
                 return HttpResponse(HttpStatus::S_404_NOT_FOUND);
             }
 
-            return invoke_method(request, link_to_view[link]);
+            return invoke_method(request, *link_to_view[link]);
         }
 
     private:
@@ -37,11 +39,13 @@ class ViewHandler {
             return HttpResponse(HttpStatus::S_400_BAD_REQUEST);
         }
 
-        static std::unordered_map<std::string, View> link_to_view;
+        static std::unordered_map<std::string, View*> link_to_view;
 };
 
-std::unordered_map<std::string, View> ViewHandler::link_to_view = {
-    {"/", FileView("index.html")}
+FileView index("index.html");
+
+std::unordered_map<std::string, View*> ViewHandler::link_to_view = {
+    {"/", &index}
 };
 
 }

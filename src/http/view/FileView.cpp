@@ -19,7 +19,7 @@ HttpResponse FileView::get_method(const HttpMessage&)
     std::vector<char> content(std::istreambuf_iterator<char>(f), {});
     f.close();
 
-    return HttpResponse(content);
+    return HttpResponse(content, "HTTP/1.0", "text/html");
 }
 
 HttpResponse FileView::head_method(const HttpMessage&)
