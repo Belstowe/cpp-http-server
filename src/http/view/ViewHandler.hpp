@@ -19,7 +19,8 @@ class ViewHandler {
             auto link = request.get_path();
 
             if (link_to_view.find(link) == link_to_view.end()) {
-                return HttpResponse(HttpStatus::S_404_NOT_FOUND);
+                FileView static_view("." + link);
+                return invoke_method(request, static_view);
             }
 
             return invoke_method(request, *link_to_view[link]);

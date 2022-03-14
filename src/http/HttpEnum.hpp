@@ -5,7 +5,7 @@
 
 namespace http
 {
-    const char server_name[] = "CppHttp/0.4";
+    const char server_name[] = "CppHttp/0.5";
 
     enum class HttpMethod {
         Get,
