@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.13..3.21)
 project(
 	http-server
 	VERSION 0.2
-	LANGUAGES C)
+	LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/)
 
