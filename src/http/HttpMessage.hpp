@@ -1,11 +1,11 @@
 #pragma once
 
 #include <string>
-#include <sstream>
 #include <vector>
 #include <unordered_map>
 
-#include "HttpMethod.hpp"
+#include "HttpEnum.hpp"
+#include "Utility.hpp"
 
 namespace http
 {
@@ -21,27 +21,13 @@ class HttpMessage {
         HttpMessage(const std::string& message) {
             valid = true;
 
-            std::vector<std::string> lines;
-
-            std::stringstream line_spliter(message);
-
-            std::string templine;
-
-            while (std::getline(line_spliter, templine)) {
-                lines.emplace_back(std::move(templine));
-            }
+            auto lines = http::tokenize(message, '\n');
 
             std::string restful_line = lines.front();
             lines.erase(lines.begin());
 
             if (!(restful_line.empty()) && (restful_line.find("GET") == 0)) {
-                std::stringstream token_spliter(restful_line);
-
-                std::vector<std::string> tokens;
-
-                while (std::getline(token_spliter, templine, ' ')) {
-                    tokens.emplace_back(std::move(templine));
-                }
+                auto tokens = http::tokenize(restful_line, ' ');
 
                 if ((tokens.size() == 3) && (tokens[0] == "GET") && (tokens[2].find("HTTP/") == 0)) {
                     method = HttpMethod::Get;
@@ -55,7 +41,7 @@ class HttpMessage {
                 for (auto&& line : lines) {
                     auto colon_pos = line.find(":");
                     if ((colon_pos != std::string::npos) && (colon_pos != 0)) {
-                        parameters[line.substr(0, colon_pos)] = line.substr(colon_pos + 1);
+                        parameters[http::trim(line.substr(0, colon_pos))] = http::trim(line.substr(colon_pos + 1));
                     }
                     else {
                         valid = false;
@@ -65,6 +51,10 @@ class HttpMessage {
             else {
                 valid = false;
             }
+        }
+
+        bool has_attribute(const std::string& key) const {
+            return parameters.find(key) != parameters.end();
         }
 
         HttpMethod get_method() const {

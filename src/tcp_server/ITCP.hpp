@@ -9,7 +9,8 @@ namespace tcp_server
 {
 enum class TCPMessageHandleReturn
 {
-    SuccessResponse,
+    SuccessResponseKeepAlive,
+    SuccessResponseClose,
     SuccessNoResponse,
     Fail
 };

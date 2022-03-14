@@ -1,5 +1,6 @@
 #include "tcp_server/SelectTCPServer.hpp"
 #include "http/HttpMessage.hpp"
+#include "http/HttpResponse.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -17,9 +18,14 @@ TCPMessageHandleReturn message_handle(socket_t, std::string&& message, std::stri
 
     std::cout << '\n';
 
-    response = "Thank you!";
+    response = http::HttpResponse("<html><body>Hello World!</body></html>", "HTTP/1.0", "text/html");
 
-    return TCPMessageHandleReturn::SuccessResponse;
+    if (http_message.has_attribute("Connection")) {
+        if (http_message["Connection"] == "keep-alive") {
+            return TCPMessageHandleReturn::SuccessResponseKeepAlive;
+        }
+    }
+    return TCPMessageHandleReturn::SuccessResponseClose;
 }
 
 int main() {

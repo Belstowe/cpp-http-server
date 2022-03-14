@@ -44,7 +44,15 @@ class SelectTCPServer : public ITCP
                 case TCPMessageHandleReturn::SuccessNoResponse:
                     break;
                 
-                case TCPMessageHandleReturn::SuccessResponse:
+                case TCPMessageHandleReturn::SuccessResponseKeepAlive:
+                    if (send(sockClient, response.c_str(), response.length(), 0) < 0) {
+                        NIX(perror("send()"));
+                        fprintf(stderr, "! Couldn't send a message to socket " NIX("%d") WIN("%u") ".\n", sockClient);
+                        return -1;
+                    }
+                    return 0;
+                
+                case TCPMessageHandleReturn::SuccessResponseClose:
                     if (send(sockClient, response.c_str(), response.length(), 0) < 0) {
                         NIX(perror("send()"));
                         fprintf(stderr, "! Couldn't send a message to socket " NIX("%d") WIN("%u") ".\n", sockClient);
@@ -53,7 +61,7 @@ class SelectTCPServer : public ITCP
                     break;
             }
 
-            return 0;
+            return 1;
         }
 
     public:
