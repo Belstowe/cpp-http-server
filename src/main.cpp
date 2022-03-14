@@ -1,4 +1,5 @@
 #include "tcp_server/SelectTCPServer.hpp"
+#include "http/HttpMessage.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -6,11 +7,15 @@
 using tcp_server::SelectTCPServer;
 using tcp_server::TCPMessageHandleReturn;
 
-TCPMessageHandleReturn message_handle(socket_t socket, std::string&& message, std::string& response) {
-    std::cout << "TCP_Server data:" << '\n';
-    std::cout << "\t- Client socket: " << socket << '\n';
-    std::cout << "\t- Message length: " << message.length() << '\n';
-    std::cout << "\t- Message: " << message << '\n' << std::endl;
+TCPMessageHandleReturn message_handle(socket_t, std::string&& message, std::string& response) {
+    http::HttpMessage http_message(message);
+    std::cout << "Received HTTP Message!" << '\n' << '\n';
+    std::cout << http_message.get_method() << " " << http_message.get_path() << " " << http_message.get_version() << '\n';
+    for (auto&& pair : http_message) {
+        std::cout << pair.first << " : " << pair.second << '\n';
+    }
+
+    std::cout << '\n';
 
     response = "Thank you!";
 
