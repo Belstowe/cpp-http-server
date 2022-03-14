@@ -21,12 +21,12 @@ typedef SOCKET socket_t;
 typedef int ssize_t;
 
 #define getdtablesize() 1024
-#define close(fd) closesocket(fd)
 
 #else
 
 typedef struct sockaddr_in sockaddr_in;
 typedef int socket_t;
+typedef closesocket(fd) close(fd)
 
 #define SD_BOTH 0
 

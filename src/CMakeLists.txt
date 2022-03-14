@@ -9,7 +9,7 @@ file(GLOB_RECURSE HTTP_SERVER_HEADER_FILES
 add_executable(${PROJECT_NAME} ${HTTP_SERVER_SOURCE_FILES} ${HTTP_SERVER_HEADER_FILES})
 
 if(MSVC)
-    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4)
     target_link_libraries(${PROJECT_NAME} PRIVATE wsock32)
 else()
     target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Werror -pedantic)
