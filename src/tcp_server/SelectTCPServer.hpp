@@ -3,6 +3,7 @@
 #include "ITCP.hpp"
 
 #include <cstdio>
+#include <cstring>
 #include <stdexcept>
 #include <string>
 
