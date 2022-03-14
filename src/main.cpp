@@ -4,14 +4,17 @@
 #include <stdexcept>
 
 using tcp_server::SelectTCPServer;
+using tcp_server::TCPMessageHandleReturn;
 
-int message_handle(socket_t socket, std::string&& message) {
+TCPMessageHandleReturn message_handle(socket_t socket, std::string&& message, std::string& response) {
     std::cout << "TCP_Server data:" << '\n';
     std::cout << "\t- Client socket: " << socket << '\n';
     std::cout << "\t- Message length: " << message.length() << '\n';
     std::cout << "\t- Message: " << message << '\n' << std::endl;
 
-    return 0;
+    response = "Thank you!";
+
+    return TCPMessageHandleReturn::SuccessResponse;
 }
 
 int main() {

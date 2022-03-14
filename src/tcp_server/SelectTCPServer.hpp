@@ -20,7 +20,7 @@ class SelectTCPServer : public ITCP
         fd_set afds;
         socket_t nfds;
 
-        int handle_method(socket_t sockClient, int (*message_handle)(socket_t, std::string&&))
+        int handle_method(socket_t sockClient, TCPMessageHandleReturn (*message_handle)(socket_t, std::string&&, std::string&))
         {
             char buf[BUFLEN + 1];
             ssize_t msgLength;
@@ -34,7 +34,26 @@ class SelectTCPServer : public ITCP
             else if (msgLength == 0)
                 return 1;
             
-            return message_handle(sockClient, std::move(std::string(buf, msgLength)));
+            std::string response;
+            auto code = message_handle(sockClient, std::move(std::string(buf, msgLength)), response);
+            switch (code) {
+                case TCPMessageHandleReturn::Fail:
+                    fprintf(stderr, "! Couldn't handle a message from socket " NIX("%d") WIN("%u") ".\n", sockClient);
+                    return -1;
+
+                case TCPMessageHandleReturn::SuccessNoResponse:
+                    break;
+                
+                case TCPMessageHandleReturn::SuccessResponse:
+                    if (send(sockClient, response.c_str(), response.length(), 0) < 0) {
+                        NIX(perror("send()"));
+                        fprintf(stderr, "! Couldn't send a message to socket " NIX("%d") WIN("%u") ".\n", sockClient);
+                        return -1;
+                    }
+                    break;
+            }
+
+            return 0;
         }
 
     public:
@@ -93,7 +112,7 @@ class SelectTCPServer : public ITCP
             return ntohs(servAddr.sin_port);
         }
 
-        void handle_connections(int (*message_handle)(socket_t, std::string&&)) override
+        void handle_connections(TCPMessageHandleReturn (*message_handle)(socket_t, std::string&&, std::string&)) override
         {
             fd_set rfds;
             memcpy(&rfds, &afds, sizeof(rfds));
