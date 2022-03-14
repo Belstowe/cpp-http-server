@@ -57,23 +57,23 @@ class HttpMessage {
             return parameters.find(key) != parameters.end();
         }
 
-        HttpMethod get_method() const {
+        const HttpMethod& get_method() const {
             return method;
         }
 
-        std::string get_path() const {
+        const std::string& get_path() const {
             return path;
         }
 
-        std::string get_version() const {
+        const std::string& get_version() const {
             return version;
         }
 
-        bool isValid() const {
+        const bool& isValid() const {
             return valid;
         }
 
-        std::string operator[](const std::string& key) const {
+        const std::string& operator[](const std::string& key) const {
             return parameters.at(key);
         }
 

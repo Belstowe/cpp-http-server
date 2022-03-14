@@ -1,6 +1,8 @@
 #include "tcp_server/SelectTCPServer.hpp"
+#include "http/HttpEnum.hpp"
 #include "http/HttpMessage.hpp"
 #include "http/HttpResponse.hpp"
+#include "http/view/ViewHandler.hpp"
 
 #include <iostream>
 #include <stdexcept>
@@ -8,17 +10,27 @@
 using tcp_server::SelectTCPServer;
 using tcp_server::TCPMessageHandleReturn;
 
-TCPMessageHandleReturn message_handle(socket_t, std::string&& message, std::string& response) {
+TCPMessageHandleReturn message_handle(socket_t, std::string&& message, std::string& response_string) {
     http::HttpMessage http_message(message);
-    std::cout << "Received HTTP Message!" << '\n' << '\n';
-    std::cout << http_message.get_method() << " " << http_message.get_path() << " " << http_message.get_version() << '\n';
+    // std::cout << http_message.get_method() << " " << http_message.get_path() << " " << http_message.get_version() << '\n';
     for (auto&& pair : http_message) {
         std::cout << pair.first << " : " << pair.second << '\n';
     }
 
     std::cout << '\n';
 
-    response = http::HttpResponse("<html><body>Hello World!</body></html>", "HTTP/1.0", "text/html");
+    auto response = http::view::ViewHandler::handle(http_message);
+    response_string = response;
+
+    switch (response.get_status()) {
+        case http::HttpStatus::S_400_BAD_REQUEST:
+        case http::HttpStatus::S_404_NOT_FOUND:
+        case http::HttpStatus::S_500_INTERNAL_SERVER_ERROR:
+        case http::HttpStatus::S_501_NOT_IMPLEMENTED:
+        case http::HttpStatus::S_502_BAD_GATEWAY:
+        case http::HttpStatus::S_503_SERVICE_UNAVAILABLE:
+            return TCPMessageHandleReturn::SuccessResponseClose;
+    }
 
     if (http_message.has_attribute("Connection")) {
         if (http_message["Connection"] == "keep-alive") {

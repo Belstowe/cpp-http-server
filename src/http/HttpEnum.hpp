@@ -9,22 +9,21 @@ namespace http
 
     enum class HttpMethod {
         Get,
-        Post
+        Head,
+        Post,
+        Put,
+        Delete
     };
 
     const std::unordered_map<std::string, HttpMethod> string_to_method_map {
         {"GET", HttpMethod::Get},
-        {"POST", HttpMethod::Post}
+        {"HEAD", HttpMethod::Head},
+        {"POST", HttpMethod::Post},
+        {"PUT", HttpMethod::Put},
+        {"DELETE", HttpMethod::Delete}
     };
 
-    std::ostream& operator<<(std::ostream& os, const HttpMethod& http_method) {
-        switch (http_method) {
-            case HttpMethod::Get: os << "GET"; break;
-            case HttpMethod::Post: os << "POST"; break;
-            default: os << static_cast<int>(http_method);
-        }
-        return os;
-    }
+    std::ostream& operator<<(std::ostream& os, const HttpMethod& http_method);
 
     enum class HttpStatus {
         S_200_OK,
@@ -50,8 +49,5 @@ namespace http
         {HttpStatus::S_503_SERVICE_UNAVAILABLE, "503 Service Unavailable"}
     };
 
-    std::ostream& operator<<(std::ostream& os, const HttpStatus& http_status) {
-        os << status_to_string_map.at(http_status);
-        return os;
-    }
+    std::ostream& operator<<(std::ostream& os, const HttpStatus& http_status);
 }

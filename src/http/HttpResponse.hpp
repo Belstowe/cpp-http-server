@@ -51,6 +51,17 @@ class HttpResponse {
         : HttpResponse{std::vector<char>{content.begin(), content.end()}, version, content_type, status}
         {}
 
+        HttpResponse(const std::unordered_map<std::string, std::string>& attributes, HttpStatus status = HttpStatus::S_200_OK, const std::vector<char>& content = {}, const std::string& version = "HTTP/1.0")
+        : status{status}, content{content}, version{version}
+        {
+            parameters["Date"] = get_current_date();
+            parameters["Server"] = http::server_name;
+
+            for (auto&& attribute : attributes) {
+                parameters[attribute.first] = attribute.second;
+            }
+        }
+
         operator std::string() {
             std::string response_body(version + " " + status_to_string_map.at(status) + "\n");
 
@@ -64,6 +75,10 @@ class HttpResponse {
             }
 
             return response_body;
+        }
+
+        const HttpStatus& get_status() const {
+            return status;
         }
 };
 

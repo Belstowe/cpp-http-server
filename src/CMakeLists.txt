@@ -20,5 +20,5 @@ set_target_properties(
     PROPERTIES
         CXX_STANDARD 11
         CXX_STANDARD_REQUIRED ON
-        CXX_EXTENSIONS ON
+        CXX_EXTENSIONS OFF
 )

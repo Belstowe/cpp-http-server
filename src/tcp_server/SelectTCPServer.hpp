@@ -141,7 +141,7 @@ class SelectTCPServer : public ITCP
             for (socket_t fd = 0; fd < nfds; fd++) {
                 if (fd != sockMain && FD_ISSET(fd, &rfds)) {
                     if (handle_method(fd, message_handle)) {
-                        close(fd);
+                        closesocket(fd);
                         FD_CLR(fd, &afds);
                     }
                 }
