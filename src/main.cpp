@@ -1,11 +1,7 @@
-#include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "tcp_server/SelectTCPServer.hpp"
 
 #include <iostream>
+#include <stdexcept>
 
 using tcp_server::SelectTCPServer;
 
@@ -19,11 +15,16 @@ int message_handle(socket_t socket, std::string&& message) {
 }
 
 int main() {
-    SelectTCPServer tcp_server;
-    auto port = tcp_server.listen_on();
-    std::cout << "Listening on port " << port << "..." << std::endl;
+    try {
+        SelectTCPServer tcp_server;
+        auto port = tcp_server.listen_on();
+        std::cout << "Listening on port " << port << "..." << std::endl;
 
-    while (true) {
-        tcp_server.handle_connections(message_handle);
+        while (true) {
+            tcp_server.handle_connections(message_handle);
+        }
+    }
+    catch (std::runtime_error& e) {
+        std::clog << e.what() << std::endl;
     }
 }

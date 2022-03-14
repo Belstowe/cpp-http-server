@@ -3,6 +3,7 @@
 #include "ITCP.hpp"
 
 #include <cstdio>
+#include <stdexcept>
 #include <string>
 
 namespace tcp_server
@@ -25,7 +26,8 @@ class SelectTCPServer : public ITCP
 
             memset(buf, 0, BUFLEN);
             if ((msgLength = recv(sockClient, buf, BUFLEN, 0)) < 0) {
-                perror("TCP_Server: Couldn't receive a message.\n");
+                NIX(perror("recv()"));
+                fprintf(stderr, "! Couldn't receive a message from socket " NIX("%d") WIN("%u") ".\n", sockClient);
                 return -1;
             }
             else if (msgLength == 0)
@@ -41,15 +43,14 @@ class SelectTCPServer : public ITCP
             struct WSAData w_data;
 
             if (WSAStartup(MAKEWORD(2, 2), &w_data) != 0) {
-                perror("TCP_Server: Couldn't startup Windows Sockets 2.\n");
-                exit(1);
+                throw std::runtime_error("Couldn't startup Windows Sockets 2.");
             }
             #endif
 
             sockMain = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             if (sockMain == WIN(INVALID_SOCKET) NIX(-1)) {
-                perror("TCP_Server: Couldn't open TCP socket.\n");
-                exit(1);
+                NIX(perror("socket()"));
+                throw std::runtime_error("Couldn't open TCP socket.");
             }
             memset(&servAddr, 0, sizeof(servAddr));
         }
@@ -69,19 +70,19 @@ class SelectTCPServer : public ITCP
             servAddr.sin_port = port;
 
             if (bind(sockMain, (struct sockaddr *)&servAddr, sizeof(servAddr))) {
-                perror("TCP_Server: Couldn't bind socket.\n");
-                exit(1);
+                NIX(perror("bind()"));
+                throw std::runtime_error("Couldn't bind socket.");
             }
 
             socklen_t length = sizeof(servAddr);
             if (getsockname(sockMain, (struct sockaddr *)&servAddr, &length)) {
-                perror("TCP_Server: Couldn't call 'getsockname'.\n");
-                exit(1);
+                NIX(perror("getsockname()"));
+                throw std::runtime_error("Couldn't call 'getsockname'.");
             }
 
             if (listen(sockMain, 5) < 0) {
-                perror("TCP_Server: Couldn't establish connections.");
-                exit(1);
+                NIX(perror("listen()"));
+                throw std::runtime_error("Couldn't establish connections.");
             }
 
             nfds = getdtablesize();
@@ -96,14 +97,15 @@ class SelectTCPServer : public ITCP
             fd_set rfds;
             memcpy(&rfds, &afds, sizeof(rfds));
             if (select(nfds, &rfds, NULL, NULL, NULL) < 0) {
-                perror("TCP_Server: Couldn't select a socket.\n");
+                NIX(perror("select()"));
+                throw std::runtime_error("Couldn't select a socket.");
             }
 
             if (FD_ISSET(sockMain, &rfds)) {
                 socket_t sockClient;
                 if ((sockClient = accept(sockMain, NULL, NULL)) < 0) {
-                    perror("TCP_Server: Faulty client socket.\n");
-                    exit(1);
+                    NIX(perror("accept()"));
+                    throw std::runtime_error("Faulty client socket.");
                 }
                 FD_SET(sockClient, &afds);
             }
