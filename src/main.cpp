@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "CrossMacros.h"
+#include "Uninet.h"
 
 #define BUFLEN 256
 
