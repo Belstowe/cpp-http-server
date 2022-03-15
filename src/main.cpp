@@ -5,6 +5,7 @@
 #include "http/HttpResponse.hpp"
 #include "http/view/ViewHandler.hpp"
 
+#include <csignal>
 #include <iostream>
 #include <stdexcept>
 
@@ -50,7 +51,17 @@ TCPMessageHandleReturn message_handle(socket_t, std::string&& message, std::stri
     return TCPMessageHandleReturn::SuccessResponseClose;
 }
 
+void interrupt_handle(int) {
+    std::clog << "Gracefully exiting..." << std::endl;
+    http::view::ViewHandler::clear_views();
+    exit(0);
+}
+
 int main() {
+    signal(SIGABRT, interrupt_handle);
+    signal(SIGINT, interrupt_handle);
+    signal(SIGTERM, interrupt_handle);
+
     uint16_t settings_port = 0;
     try {
         ini_parser::INI settings_ini("settings.ini");
