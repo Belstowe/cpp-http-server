@@ -30,6 +30,17 @@ class ViewHandler {
             static_path = path;
         }
 
+        static void add_file_view(std::string link, std::string path) {
+            FileView* file_view = new FileView(static_path + "/" + path);
+            link_to_view[link] = file_view;
+        }
+
+        static void clear_views() {
+            for (auto& view : link_to_view) {
+                delete view.second;
+            }
+        }
+
     private:
         ViewHandler() {}
 
@@ -53,10 +64,7 @@ class ViewHandler {
 
 std::string ViewHandler::static_path(".");
 
-FileView index("index.html");
-
 std::unordered_map<std::string, View*> ViewHandler::link_to_view = {
-    {"/", &index}
 };
 
 }

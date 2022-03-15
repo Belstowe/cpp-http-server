@@ -48,21 +48,22 @@ TCPMessageHandleReturn message_handle(socket_t, std::string&& message, std::stri
     return TCPMessageHandleReturn::SuccessResponseClose;
 }
 
-void ini_settings_parse(const ini_parser::INI& settings, uint16_t& port) {
-    if (settings["Global"].find("WWWRoot") != settings["Global"].end()) {
-        http::view::ViewHandler::set_static_path(settings["Global"].at("WWWRoot"));
-    }
-
-    if (settings["Global"].find("Port") != settings["Global"].end()) {
-        port = static_cast<uint16_t>(std::stoul(settings["Global"].at("Port")));
-    }
-}
-
 int main() {
     uint16_t settings_port = 0;
     try {
         ini_parser::INI settings_ini("settings.ini");
-        ini_settings_parse(settings_ini, settings_port);
+
+        if (settings_ini["Global"].find("WWWRoot") != settings_ini["Global"].end()) {
+            http::view::ViewHandler::set_static_path(settings_ini["Global"].at("WWWRoot"));
+        }
+
+        if (settings_ini["Global"].find("Port") != settings_ini["Global"].end()) {
+            settings_port = static_cast<uint16_t>(std::stoul(settings_ini["Global"].at("Port")));
+        }
+
+        for (auto&& view : settings_ini["Views"]) {
+            http::view::ViewHandler::add_file_view(view.first, view.second);
+        }
     }
     catch (std::runtime_error& e) {
         std::clog << e.what() << std::endl;
@@ -80,4 +81,6 @@ int main() {
     catch (std::runtime_error& e) {
         std::clog << e.what() << std::endl;
     }
+
+    http::view::ViewHandler::clear_views();
 }
