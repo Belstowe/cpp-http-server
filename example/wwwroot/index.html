@@ -1,0 +1,114 @@
+  <!DOCTYPE html>
+  <html>
+      <head>
+          <meta charset="UTF-8">
+          <title>Тест таблицы</title>
+          <style>
+              html, input {
+                  font-family: 'Bahnschrift', 'Trebuchet MS';
+                  font-size: 5em;
+             }
+ 
+             body {
+                 background-image: url("img/flowers.png");
+                 /* background-color: repeating-linear-gradient(-45deg, rgb(220, 220, 220, 1), rgb(220, 220, 220, 1) 1%, rgb(200, 200, 200, 1) 1%, rgb(200, 200, 200, 1) 2%) no-repeat; */
+                 min-height: 100vh;
+             }
+ 
+             .inner-body {
+                 width: 90%;
+                 min-height: 90%;
+                 /* background: repeating-linear-gradient(-45deg, rgb(220, 220, 220), rgb(220, 220, 220) 1%, rgb(240, 240, 240) 1%, rgb(240, 240, 240) 2%) no-repeat; */
+                 background-color: whitesmoke;
+                 opacity: 0.9;
+ 
+                 position: absolute;
+                 top: 5%;
+                 left: 5%;
+ 
+                 margin: auto;
+                 padding: 1vh 1vw;
+ 
+                 display: flex;
+                 align-items: center;
+                 align-content: center;
+                 justify-content: flex-start;
+                 flex-direction: column;
+ 
+                 box-shadow: 0.5vh 0.5vh 1vh 1vh darkgray;
+             }
+ 
+             .player-grid {
+                 display: grid;
+                 width: fit-content;
+                 border: 2px solid black;
+                 border-radius: 5px;
+                 grid-template-columns: repeat(4, 1fr);
+                 grid-auto-rows: auto;
+                 box-shadow: 0.25vh 0.25vh 0.5vh darkgray;
+             }
+ 
+             .player-grid > div {
+                 position: relative;
+                 text-align: center;
+                 display: flex;
+                 align-items: center;
+                 align-content: center;
+                 justify-content: center;
+             }
+ 
+             .header-box {
+                 padding: 0;
+                 height: 12px;
+             }
+ 
+             .footer-box {
+                 padding: 0;
+                 height: 6px;
+             }
+ 
+             .value-box {
+                 border: 2px 1px solid rgb(190, 190, 190);
+                 background-color: whitesmoke;
+                 color: black;
+                 padding: 6px;
+                 min-height: 1.5em;
+                 min-width: min(10vw, 12em);
+             }
+ 
+             .covered {
+                 background: repeating-linear-gradient(45deg, rgb(220, 220, 220), rgb(220, 220, 220) 10%, rgb(200, 200, 200) 10%, rgb(200, 200, 200) 20%);
+                 font-style: italic;
+                 font-weight: bold;
+                 font-stretch: semi-condensed;
+                 font-size: 75%;
+                 color: rgb(160, 160, 160);
+            }
+
+            .dead {
+                filter: invert(90%);
+                -webkit-filter: invert(90%);
+            }
+
+            .player-name-box {
+                background-color: white;
+                color: black;
+                padding: 10px;
+                font-size: 130%;
+                font-weight: bold;
+                font-stretch: semi-condensed;
+            }
+
+            .color-header {
+                width: 100%;
+                height: 12px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="inner-body">
+            Hello World!
+        </div>
+    </body>
+</html>
