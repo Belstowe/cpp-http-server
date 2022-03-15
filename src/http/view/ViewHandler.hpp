@@ -34,10 +34,13 @@ class ViewHandler {
 
             switch (method) {
                 case HttpMethod::Get: return view.get_method(request);
+                case HttpMethod::Head: return view.head_method(request);
+                case HttpMethod::Put: return view.put_method(request);
                 case HttpMethod::Post: return view.post_method(request);
+                case HttpMethod::Delete: return view.delete_method(request);
             }
 
-            return HttpResponse(HttpStatus::S_400_BAD_REQUEST);
+            return HttpResponse(HttpStatus::S_501_NOT_IMPLEMENTED);
         }
 
         static std::unordered_map<std::string, View*> link_to_view;

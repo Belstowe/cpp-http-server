@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-std::vector<std::string> http::tokenize(std::string message, char delimiter = '\n')
+std::vector<std::string> http::util::tokenize(std::string message, char delimiter)
 {
     std::vector<std::string> lines;
 
@@ -10,14 +10,21 @@ std::vector<std::string> http::tokenize(std::string message, char delimiter = '\
 
     std::string templine;
 
-    while (std::getline(line_spliter, templine, delimiter)) {
-        lines.emplace_back(std::move(templine));
+    if (delimiter == '\n') {
+        while (std::getline(line_spliter, templine)) {
+            lines.emplace_back(std::move(templine));
+        }
+    }
+    else {
+        while (std::getline(line_spliter, templine, delimiter)) {
+            lines.emplace_back(std::move(templine));
+        }
     }
 
     return lines;
 }
 
-std::string&& http::trim(std::string&& str)
+std::string&& http::util::trim(std::string&& str)
 {
     str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](const auto& c) {
         return !std::isspace(c);

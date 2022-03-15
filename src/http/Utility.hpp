@@ -5,6 +5,9 @@
 
 namespace http
 {
-std::vector<std::string> tokenize(std::string, char);
+namespace util
+{
+std::vector<std::string> tokenize(std::string, char = '\n');
 std::string&& trim(std::string&&);
+}
 }

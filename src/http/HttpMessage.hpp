@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -15,41 +16,76 @@ class HttpMessage {
         HttpMethod method;
         std::string path;
         std::string version;
-        bool valid;
+        std::string content;
 
     public:
-        HttpMessage(const std::string& message) {
-            valid = true;
+        HttpMessage()
+        {}
 
-            auto lines = http::tokenize(message, '\n');
+        HttpMessage(const std::string& message) {
+            deserialize(message);
+        }
+
+        void deserialize(const std::string& message) {
+            auto lines = util::tokenize(message);
+
+            for (auto& line : lines) {
+                auto new_end = std::remove(line.begin(), line.end(), '\r');
+                line.erase(new_end, line.end());
+            }
 
             std::string restful_line = lines.front();
             lines.erase(lines.begin());
 
-            if (!(restful_line.empty()) && (restful_line.find("GET") == 0)) {
-                auto tokens = http::tokenize(restful_line, ' ');
+            if (restful_line.empty()) {
+                throw std::runtime_error("Request is empty");
+            }
 
-                if ((tokens.size() == 3) && (tokens[0] == "GET") && (tokens[2].find("HTTP/") == 0)) {
-                    method = HttpMethod::Get;
-                    path = tokens[1];
-                    version = tokens[2];
+            auto tokens = util::tokenize(restful_line, ' ');
+
+            if (tokens.size() != 3) {
+                throw std::runtime_error("Invalid HTTP request method format");
+            }
+
+            if (tokens[2].find("HTTP/") != 0) {
+                throw std::runtime_error("Invalid HTTP request version");
+            }
+
+            if (string_to_method_map.find(tokens[0]) == string_to_method_map.end()) {
+                throw std::runtime_error("Invalid/unsupported HTTP method");
+            }
+
+            method = string_to_method_map.at(tokens[0]);
+            path = tokens[1];
+            version = tokens[2];
+
+            auto line_iterator = lines.begin();
+
+            for (; !(*line_iterator).empty() && (line_iterator != lines.end()); line_iterator++) {
+                auto&& header = *line_iterator;
+
+                auto colon_pos = header.find(":");
+                if ((colon_pos != std::string::npos) && (colon_pos != 0)) {
+                    parameters[util::trim(header.substr(0, colon_pos))] = util::trim(header.substr(colon_pos + 1));
                 }
                 else {
-                    valid = false;
-                }
-
-                for (auto&& line : lines) {
-                    auto colon_pos = line.find(":");
-                    if ((colon_pos != std::string::npos) && (colon_pos != 0)) {
-                        parameters[http::trim(line.substr(0, colon_pos))] = http::trim(line.substr(colon_pos + 1));
-                    }
-                    else {
-                        valid = false;
-                    }
+                    throw std::runtime_error("Invalid header format");
                 }
             }
-            else {
-                valid = false;
+
+            if (line_iterator != lines.end()) {
+                line_iterator++;
+            }
+
+            for (; line_iterator != lines.end(); line_iterator++) {
+                auto&& content_line = *line_iterator;
+
+                if (!content_line.empty()) {
+                    if ((method == HttpMethod::Get) || (method == HttpMethod::Head))
+                        throw std::runtime_error(std::string() + tokens[0] + " method can't have response body!");
+                }
+
+                content += content_line;
             }
         }
 
@@ -69,8 +105,8 @@ class HttpMessage {
             return version;
         }
 
-        const bool& isValid() const {
-            return valid;
+        const std::string& get_content() const {
+            return content;
         }
 
         const std::string& operator[](const std::string& key) const {
