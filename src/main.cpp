@@ -38,6 +38,8 @@ TCPMessageHandleReturn message_handle(socket_t, std::string&& message, std::stri
         case http::HttpStatus::S_502_BAD_GATEWAY:
         case http::HttpStatus::S_503_SERVICE_UNAVAILABLE:
             return TCPMessageHandleReturn::SuccessResponseClose;
+        default:
+            break;
     }
 
     if (http_message.has_attribute("Connection")) {

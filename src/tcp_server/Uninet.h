@@ -26,7 +26,7 @@ typedef int ssize_t;
 
 typedef struct sockaddr_in sockaddr_in;
 typedef int socket_t;
-typedef closesocket(fd) close(fd)
+#define closesocket(fd) close(fd)
 
 #define SD_BOTH 0
 

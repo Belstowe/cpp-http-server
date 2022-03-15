@@ -38,7 +38,7 @@ class HttpResponse {
         }
 
         HttpResponse(const std::vector<char>& content, const std::string& version = "HTTP/1.0", const std::string& content_type = "text/plain", HttpStatus status = HttpStatus::S_200_OK)
-        : content{content}, version{version}, status{status}
+        : status{status}, version{version}, content{content}
         {
             parameters["Date"] = get_current_date();
             parameters["Server"] = http::server_name;
@@ -51,7 +51,7 @@ class HttpResponse {
         {}
 
         HttpResponse(const std::unordered_map<std::string, std::string>& attributes, HttpStatus status = HttpStatus::S_200_OK, const std::vector<char>& content = {}, const std::string& version = "HTTP/1.0")
-        : status{status}, content{content}, version{version}
+        : status{status}, version{version}, content{content}
         {
             parameters["Date"] = get_current_date();
             parameters["Server"] = http::server_name;

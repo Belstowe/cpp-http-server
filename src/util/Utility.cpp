@@ -1,5 +1,6 @@
 #include "Utility.hpp"
 
+#include <algorithm>
 #include <sstream>
 
 std::vector<std::string> util::tokenize(std::string message, char delimiter)
@@ -26,11 +27,11 @@ std::vector<std::string> util::tokenize(std::string message, char delimiter)
 
 std::string&& util::trim(std::string&& str)
 {
-    str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](const auto& c) {
+    str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](const char& c) {
         return !std::isspace(c);
     }));
 
-    str.erase(std::find_if(str.rbegin(), str.rend(), [](const auto& c) {
+    str.erase(std::find_if(str.rbegin(), str.rend(), [](const char& c) {
         return !std::isspace(c);
     }).base(), str.end());
 

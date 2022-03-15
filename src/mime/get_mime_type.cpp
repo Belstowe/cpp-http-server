@@ -4,8 +4,6 @@
 
 #include <unordered_map>
 
-using namespace std::string_literals;
-
 const std::unordered_map<std::string, std::string> extension_to_mime {
     // 'text' types
     {"htm", "text/html"},
