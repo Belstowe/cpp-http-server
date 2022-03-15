@@ -1,3 +1,4 @@
+#include "ini_parser/INI.hpp"
 #include "tcp_server/SelectTCPServer.hpp"
 #include "http/HttpEnum.hpp"
 #include "http/HttpMessage.hpp"
@@ -47,10 +48,29 @@ TCPMessageHandleReturn message_handle(socket_t, std::string&& message, std::stri
     return TCPMessageHandleReturn::SuccessResponseClose;
 }
 
+void ini_settings_parse(const ini_parser::INI& settings, uint16_t& port) {
+    if (settings["Global"].find("WWWRoot") != settings["Global"].end()) {
+        http::view::ViewHandler::set_static_path(settings["Global"].at("WWWRoot"));
+    }
+
+    if (settings["Global"].find("Port") != settings["Global"].end()) {
+        port = static_cast<uint16_t>(std::stoul(settings["Global"].at("Port")));
+    }
+}
+
 int main() {
+    uint16_t settings_port = 0;
+    try {
+        ini_parser::INI settings_ini("settings.ini");
+        ini_settings_parse(settings_ini, settings_port);
+    }
+    catch (std::runtime_error& e) {
+        std::clog << e.what() << std::endl;
+    }
+
     try {
         SelectTCPServer tcp_server;
-        auto port = tcp_server.listen_on();
+        auto port = tcp_server.listen_on(0U, settings_port);
         std::cout << "Listening on port " << port << "..." << std::endl;
 
         while (true) {

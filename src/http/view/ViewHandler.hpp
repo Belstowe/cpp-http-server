@@ -19,11 +19,15 @@ class ViewHandler {
             auto link = request.get_path();
 
             if (link_to_view.find(link) == link_to_view.end()) {
-                FileView static_view("." + link);
+                FileView static_view(static_path + link);
                 return invoke_method(request, static_view);
             }
 
             return invoke_method(request, *link_to_view[link]);
+        }
+
+        static void set_static_path(std::string path) {
+            static_path = path;
         }
 
     private:
@@ -43,8 +47,11 @@ class ViewHandler {
             return HttpResponse(HttpStatus::S_501_NOT_IMPLEMENTED);
         }
 
+        static std::string static_path;
         static std::unordered_map<std::string, View*> link_to_view;
 };
+
+std::string ViewHandler::static_path(".");
 
 FileView index("index.html");
 
