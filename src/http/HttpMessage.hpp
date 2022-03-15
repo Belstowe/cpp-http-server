@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 #include "HttpEnum.hpp"
-#include "Utility.hpp"
+#include "util/Utility.hpp"
 
 namespace http
 {

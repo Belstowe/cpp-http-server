@@ -2,7 +2,7 @@
 
 #include <sstream>
 
-std::vector<std::string> http::util::tokenize(std::string message, char delimiter)
+std::vector<std::string> util::tokenize(std::string message, char delimiter)
 {
     std::vector<std::string> lines;
 
@@ -24,7 +24,7 @@ std::vector<std::string> http::util::tokenize(std::string message, char delimite
     return lines;
 }
 
-std::string&& http::util::trim(std::string&& str)
+std::string&& util::trim(std::string&& str)
 {
     str.erase(str.begin(), std::find_if(str.begin(), str.end(), [](const auto& c) {
         return !std::isspace(c);
