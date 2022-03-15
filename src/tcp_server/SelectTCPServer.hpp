@@ -95,7 +95,7 @@ class SelectTCPServer : public ITCP
         {
             servAddr.sin_family = AF_INET;
             servAddr.sin_addr.s_addr = htonl(ip);
-            servAddr.sin_port = port;
+            servAddr.sin_port = (port != 0) ? htons(port) : 0;
 
             if (bind(sockMain, (struct sockaddr *)&servAddr, sizeof(servAddr))) {
                 NIX(perror("bind()"));
