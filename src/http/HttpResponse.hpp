@@ -10,7 +10,6 @@
 #include <unordered_map>
 
 #include "HttpEnum.hpp"
-#include "Utility.hpp"
 
 namespace http
 {
