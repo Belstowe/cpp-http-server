@@ -35,7 +35,7 @@ class SelectTCPServer : public ITCP
                 return 1;
             
             std::string response;
-            auto code = message_handle(sockClient, std::move(std::string(buf, msgLength)), response);
+            auto code = message_handle(sockClient, std::string(buf, msgLength), response);
             switch (code) {
                 case TCPMessageHandleReturn::Fail:
                     fprintf(stderr, "! Couldn't handle a message from socket " NIX("%d") WIN("%u") ".\n", sockClient);
